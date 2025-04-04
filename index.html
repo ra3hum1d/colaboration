@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Adventure Game</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #111;
+            color: red;
+            padding: 20px;
+            height: 600px;
+            width: 1920px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-size: 30px;
+            background-image: url("pngtree-slot-casino-machine-landing-header-png-image_13030890.png");
+            background-repeat: no-repeat;
+            background-size: 500px;
+            background-position: 0px 200px;
+        }
+
+        .cont-one{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-image: url("./pngtree-adult-drunk-man-with-glass-of-beer-and-cigar-vector-png-image_5389226.png");
+            margin-left: -50px;
+            background-repeat: no-repeat;
+           
+            background-position: 100% 00px;
+            background-size: 620px;
+            width: 1920px;
+            height: 1900px;
+        }
+        input, button {
+            background-color: #000;
+            color: red;
+            border: 1px solid #0f0;
+            padding: 10px;
+            margin-top: 20px;
+            
+        }
+        #output {
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<div class="cont-one">
+    <body>
+        <div id="output"></div>
+        <input id="input" type="text" placeholder="Type here...">
+        <button onclick="handleInput()">Submit</button>
+    
+        <script>
+            let money = 100;
+            let strength = 10;
+            let agility = 10;
+            let currentLocation = "";
+    
+            const output = document.getElementById("output");
+            const input = document.getElementById("input");
+    
+            function print(text) {
+                output.textContent += text + "\n";
+                output.scrollTop = output.scrollHeight;
+            }
+    
+            function clearInput() {
+                input.value = "";
+            }
+    
+            function handleInput() {
+                const command = input.value.trim().toLowerCase();
+                clearInput();
+    
+                if (currentLocation === "") {
+                    if (command === "casino") {
+                        currentLocation = "casino";
+                        casino();
+                    } else if (command === "forest") {
+                        currentLocation = "forest";
+                        forest();
+                    } else if (command === "q") {
+                        print("Game over!");
+                        input.disabled = true;
+                    } else {
+                        print("Not a valid location. Type 'casino', 'forest' or 'q'.");
+                    }
+                    return;
+                }
+    
+                if (currentLocation === "casino") {
+                    casinoHandler(command);
+                }
+    
+                if (currentLocation === "forest") {
+                    forestHandler(command);
+                }
+            }
+    
+            // CASINO logic
+            let casinoState = 0;
+            let currentBet = 0;
+            let rolledColor = "";
+            let rolledNumber = 0;
+    
+            function casino() {
+                print("Do you want to gamble? (yes/no)");
+                casinoState = 1;
+            }
+    
+            function casinoHandler(command) {
+                if (casinoState === 1) {
+                    if (command === "yes") {
+                        print(`You have ${money} money. Place your bet:`);
+                        casinoState = 2;
+                    } else if (command === "no") {
+                        currentLocation = "";
+                        print("Leaving casino.");
+                        print("Where to go? (casino, forest, q)");
+                    } else {
+                        print("Please answer 'yes' or 'no'.");
+                    }
+                } else if (casinoState === 2) {
+                    currentBet = parseInt(command);
+                    if (isNaN(currentBet) || currentBet <= 0 || currentBet > money) {
+                        print(`Invalid bet. You have ${money} money.`);
+                    } else {
+                        money -= currentBet;
+                        rolledNumber = Math.floor(Math.random() * 38) + 1;
+                        rolledColor = (rolledNumber === 37 || rolledNumber === 38) ? "green" :
+                                      (rolledNumber % 2 === 0 ? "red" : "black");
+                        print("Pick a number (1-38) or color (red, black, green):");
+                        casinoState = 3;
+                    }
+                } else if (casinoState === 3) {
+                    const guess = command;
+                    print(`Rolled: ${rolledColor}, number: ${rolledNumber}`);
+                    if (guess === String(rolledNumber)) {
+                        money += currentBet * 36;
+                        print(`You were VERY lucky! Now you have ${money} money.`);
+                    } else if (guess === rolledColor) {
+                        if (guess === "green") {
+                            money += currentBet * 18;
+                            print(`You were VERY lucky! Now you have ${money} money.`);
+                        } else {
+                            money += currentBet * 2;
+                            print(`You were lucky! Now you have ${money} money.`);
+                        }
+                    } else {
+                        print(`You lost! Now you have ${money} money.`);
+                    }
+                    print("Do you want to continue gambling? (yes/no)");
+                    casinoState = 1;
+                }
+            }
+    
+            // FOREST logic
+            function forest() {
+                print("You are in the forest.");
+                print("Do you want to: leave, bunny, fox, wolf, bear?");
+            }
+    
+            function forestHandler(command) {
+                if (command === "leave") {
+                    currentLocation = "";
+                    print("You left the forest.");
+                    print("Where to go? (casino, forest, q)");
+                } else if (["bunny", "fox", "wolf", "bear"].includes(command)) {
+                    print(`You faced the ${command}!`);
+                    // Tu można dodać walkę w przyszłości
+                } else {
+                    print("Invalid choice in forest.");
+                }
+            }
+    
+            print("Welcome to the game!");
+            print("Where to go? (casino, forest, q)");
+        </script>
+    </body>
+</div>
+
+</html>
+  
+
+
+
+
+
+
+    <script>
+              SyntaxHighlighter.all()
+            </script>
+  </body>
+</html>
