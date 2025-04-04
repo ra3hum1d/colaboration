@@ -22,7 +22,7 @@
             background-position: 0px 200px;
         }
 
-        .cont-one{
+        .cont-one {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -30,54 +30,163 @@
             background-image: url("./pngtree-adult-drunk-man-with-glass-of-beer-and-cigar-vector-png-image_5389226.png");
             margin-left: -50px;
             background-repeat: no-repeat;
-           
-            background-position: 100% 00px;
+            background-position: 100% 0px;
             background-size: 620px;
             width: 1920px;
             height: 1900px;
         }
+
         input, button {
             background-color: #000;
-            color: red;
-            border: 1px solid #0f0;
-            padding: 10px;
-            margin-top: 20px;
-            
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 12px 24px;
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px #0f0;
         }
-        #output {
-            white-space: pre-wrap;
-            margin-bottom: 10px;
+
+        input {
+            width: 300px;
+        }
+
+        button:hover {
+            background-color: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+
+        .menu-buttons > button {
+            margin: 10px;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #options {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        #image-container {
+            margin-top: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        #image-container img {
+            height: 100px;
         }
     </style>
+
+    <!-- Dźwięki -->
+    <audio id="click-sound" src="./click-234708.mp3" preload="auto"></audio>
+    <audio id="win-sound" src="./brass-new-level-151765.mp3" preload="auto"></audio>
+    <audio id="lose-sound" src="./losing-horn-313723.mp3" preload="auto"></audio>
 </head>
+
 <div class="cont-one">
     <body>
         <div id="output"></div>
+        <div id="options"></div>
+
+        <div class="menu-buttons">
+            <button onclick="goTo('casino')">Casino</button>
+            <button onclick="goTo('forest')">Forest</button>
+            <button onclick="goTo('q')">Quit</button>
+        </div>
+
         <input id="input" type="text" placeholder="Type here...">
         <button onclick="handleInput()">Submit</button>
-    
+
+        <!-- Nowy kontener na obrazki -->
+        <div id="image-container"></div>
+
         <script>
             let money = 100;
             let strength = 10;
             let agility = 10;
             let currentLocation = "";
-    
+
             const output = document.getElementById("output");
             const input = document.getElementById("input");
-    
+            const options = document.getElementById("options");
+            const imageContainer = document.getElementById("image-container");
+
+            function clearOutput() {
+                output.textContent = "";
+            }
+
             function print(text) {
-                output.textContent += text + "\n";
+                const line = document.createElement("div");
+                line.classList.add("fade-in");
+                line.textContent = text;
+                output.appendChild(line);
                 output.scrollTop = output.scrollHeight;
             }
-    
+
+            function playSound(id) {
+                const sound = document.getElementById(id);
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.play();
+                }
+            }
+
+            function goTo(destination) {
+                playSound("click-sound");
+                input.value = destination;
+                handleInput();
+            }
+
             function clearInput() {
                 input.value = "";
             }
-    
+
+            function clearOptions() {
+                options.innerHTML = "";
+            }
+
+            function showOptions(choices, callback) {
+                clearOptions();
+                choices.forEach(choice => {
+                    const btn = document.createElement("button");
+                    btn.textContent = choice;
+                    btn.onclick = () => {
+                        playSound("click-sound");
+                        callback(choice.toLowerCase());
+                        clearOptions();
+
+                        // Dodawanie obrazka po kliknięciu przycisku
+                        
+                        img.src = choice === "casino" ? "casino.png" :
+                                  choice === "forest" ? "forest.png" :
+                                  "click.png"; // default
+                        img.alt = choice;
+                        imageContainer.appendChild(img);
+                    };
+                    options.appendChild(btn);
+                });
+            }
+
             function handleInput() {
                 const command = input.value.trim().toLowerCase();
                 clearInput();
-    
+
                 if (currentLocation === "") {
                     if (command === "casino") {
                         currentLocation = "casino";
@@ -86,34 +195,38 @@
                         currentLocation = "forest";
                         forest();
                     } else if (command === "q") {
+                        clearOutput();
                         print("Game over!");
                         input.disabled = true;
+                        clearOptions();
                     } else {
+                        clearOutput();
                         print("Not a valid location. Type 'casino', 'forest' or 'q'.");
                     }
                     return;
                 }
-    
+
                 if (currentLocation === "casino") {
                     casinoHandler(command);
                 }
-    
+
                 if (currentLocation === "forest") {
                     forestHandler(command);
                 }
             }
-    
-            // CASINO logic
+
             let casinoState = 0;
             let currentBet = 0;
             let rolledColor = "";
             let rolledNumber = 0;
-    
+
             function casino() {
-                print("Do you want to gamble? (yes/no)");
+                clearOutput();
+                print("Do you want to gamble?");
                 casinoState = 1;
+                showOptions(["Yes", "No"], casinoHandler);
             }
-    
+
             function casinoHandler(command) {
                 if (casinoState === 1) {
                     if (command === "yes") {
@@ -121,80 +234,92 @@
                         casinoState = 2;
                     } else if (command === "no") {
                         currentLocation = "";
+                        clearOutput();
                         print("Leaving casino.");
                         print("Where to go? (casino, forest, q)");
+                        clearOptions();
                     } else {
                         print("Please answer 'yes' or 'no'.");
+                        showOptions(["Yes", "No"], casinoHandler);
                     }
                 } else if (casinoState === 2) {
                     currentBet = parseInt(command);
                     if (isNaN(currentBet) || currentBet <= 0 || currentBet > money) {
                         print(`Invalid bet. You have ${money} money.`);
                     } else {
+                        // 👇 Dodano komunikat przy wysokim zakładzie
+                        if (currentBet > 70) {
+                            print("Are you serious? You really want to spend all your money? OK.... Your choice");
+                        }
+
                         money -= currentBet;
                         rolledNumber = Math.floor(Math.random() * 38) + 1;
                         rolledColor = (rolledNumber === 37 || rolledNumber === 38) ? "green" :
                                       (rolledNumber % 2 === 0 ? "red" : "black");
-                        print("Pick a number (1-38) or color (red, black, green):");
+                        print("Pick a number (1-38) or color:");
                         casinoState = 3;
+                        showOptions(["Red", "Black", "Green"], casinoHandler);
                     }
                 } else if (casinoState === 3) {
                     const guess = command;
                     print(`Rolled: ${rolledColor}, number: ${rolledNumber}`);
                     if (guess === String(rolledNumber)) {
                         money += currentBet * 36;
+                        playSound("win-sound");
                         print(`You were VERY lucky! Now you have ${money} money.`);
                     } else if (guess === rolledColor) {
                         if (guess === "green") {
                             money += currentBet * 18;
+                            playSound("win-sound");
                             print(`You were VERY lucky! Now you have ${money} money.`);
                         } else {
                             money += currentBet * 2;
+                            playSound("win-sound");
                             print(`You were lucky! Now you have ${money} money.`);
                         }
                     } else {
+                        playSound("lose-sound");
                         print(`You lost! Now you have ${money} money.`);
                     }
-                    print("Do you want to continue gambling? (yes/no)");
+                    print("Do you want to continue gambling?");
                     casinoState = 1;
+                    showOptions(["Yes", "No"], casinoHandler);
                 }
             }
-    
-            // FOREST logic
+
             function forest() {
+                clearOutput();
                 print("You are in the forest.");
-                print("Do you want to: leave, bunny, fox, wolf, bear?");
+                print("Choose what to do:");
+                showOptions(["Leave", "Bunny", "Fox", "Wolf", "Bear"], forestHandler);
             }
-    
+
             function forestHandler(command) {
                 if (command === "leave") {
                     currentLocation = "";
+                    clearOutput();
                     print("You left the forest.");
                     print("Where to go? (casino, forest, q)");
+                    clearOptions();
                 } else if (["bunny", "fox", "wolf", "bear"].includes(command)) {
                     print(`You faced the ${command}!`);
-                    // Tu można dodać walkę w przyszłości
+
+                    // 👇 Dodanie obrazka zwierzaka
+                    const img = document.createElement("img");
+                    img.src = `${command}.png`;
+                    img.alt = command;
+                    imageContainer.appendChild(img);
                 } else {
                     print("Invalid choice in forest.");
+                    showOptions(["Leave", "Bunny", "Fox", "Wolf", "Bear"], forestHandler);
                 }
             }
-    
+
+            // 👇 Start gry
+            clearOutput();
             print("Welcome to the game!");
             print("Where to go? (casino, forest, q)");
         </script>
     </body>
 </div>
-
-</html>
-  
-
-
-
-
-
-
-    <script>
-              SyntaxHighlighter.all()
-            </script>
-  </body>
 </html>
